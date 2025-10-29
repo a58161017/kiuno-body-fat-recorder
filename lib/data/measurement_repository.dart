@@ -201,14 +201,21 @@ class MeasurementsRepository {
       ''',
       [itemId, startKey, endKey],
     );
-    return rows
-        .map(
-          (row) => MeasurementDataPoint(
-            date: formatter.parse(row['date'] as String),
-            value: (row['value'] as num).toDouble(),
-          ),
-        )
-        .toList();
+    final result = <MeasurementDataPoint>[];
+    for (final row in rows) {
+      final rawDate = row['date'] as String?;
+      final parsedDate = _parseDateKey(rawDate);
+      if (parsedDate == null) {
+        continue;
+      }
+      result.add(
+        MeasurementDataPoint(
+          date: parsedDate,
+          value: (row['value'] as num).toDouble(),
+        ),
+      );
+    }
+    return result;
   }
 
   Future<void> ensureItems(List<String> itemNames) async {
@@ -259,4 +266,25 @@ class MeasurementsRepository {
       }
     });
   }
+}
+
+DateTime? _parseDateKey(String? value) {
+  if (value == null) {
+    return null;
+  }
+  final trimmed = value.trim();
+  if (trimmed.length != 8) {
+    return null;
+  }
+  final year = int.tryParse(trimmed.substring(0, 4));
+  final month = int.tryParse(trimmed.substring(4, 6));
+  final day = int.tryParse(trimmed.substring(6, 8));
+  if (year == null || month == null || day == null) {
+    return null;
+  }
+  final parsed = DateTime(year, month, day);
+  if (parsed.year != year || parsed.month != month || parsed.day != day) {
+    return null;
+  }
+  return parsed;
 }
