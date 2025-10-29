@@ -22,22 +22,27 @@ class _RecordPageState extends ConsumerState<RecordPage> {
   String? _lastSyncedDate;
   bool _forceSync = true;
   bool _isSaving = false;
+  ProviderSubscription<DateTime>? _dateSubscription;
 
   @override
   void initState() {
     super.initState();
-    ref.listen<DateTime>(selectedDateProvider, (previous, next) {
-      if (previous != next) {
-        setState(() {
-          _lastSyncedDate = null;
-          _forceSync = true;
-        });
-      }
-    });
+    _dateSubscription = ref.listenManual<DateTime>(
+      selectedDateProvider,
+      (previous, next) {
+        if (previous != next) {
+          setState(() {
+            _lastSyncedDate = null;
+            _forceSync = true;
+          });
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
+    _dateSubscription?.close();
     for (final controller in _controllers.values) {
       controller.dispose();
     }
