@@ -1,4 +1,4 @@
-# kiuno_bmirecord
+# kiuno_body_fat_recorder
 
 A new Flutter project.
 
