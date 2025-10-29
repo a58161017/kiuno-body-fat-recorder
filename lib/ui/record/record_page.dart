@@ -156,6 +156,7 @@ class _RecordPageState extends ConsumerState<RecordPage> {
       _forceSync = true;
       _showSnackBar(context, '已儲存 ${DateFormat('yyyy/MM/dd').format(ref.read(selectedDateProvider))} 的資料');
       ref.invalidate(entryByDateProvider(dateKey));
+      ref.read(measurementsRevisionProvider.notifier).state++;
     } finally {
       if (mounted) {
         setState(() {
@@ -204,6 +205,7 @@ class _RecordPageState extends ConsumerState<RecordPage> {
     _lastSyncedDate = null;
     _forceSync = true;
     ref.invalidate(entryByDateProvider(dateKey));
+    ref.read(measurementsRevisionProvider.notifier).state++;
     _showSnackBar(context, '已刪除資料');
   }
 
