@@ -18,6 +18,8 @@ String formatDateKey(DateFormat formatter, DateTime date) {
   return formatter.format(date);
 }
 
+final measurementsRevisionProvider = StateProvider<int>((ref) => 0);
+
 final entryByDateProvider = FutureProvider.autoDispose
     .family<MeasurementEntry?, String>((ref, date) async {
   final repository = ref.watch(measurementsRepositoryProvider);
@@ -26,6 +28,7 @@ final entryByDateProvider = FutureProvider.autoDispose
 
 final chartDataProvider = FutureProvider.autoDispose
     .family<List<MeasurementDataPoint>, ChartQuery>((ref, query) async {
+  ref.watch(measurementsRevisionProvider);
   final repository = ref.watch(measurementsRepositoryProvider);
   return repository.fetchDataPoints(query.itemId, query.start, query.end);
 });

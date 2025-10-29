@@ -133,7 +133,7 @@ class SettingsPage extends ConsumerWidget {
       final selectedDate = ref.read(selectedDateProvider);
       final formatter = ref.read(dateFormatterProvider);
       ref.invalidate(entryByDateProvider(formatDateKey(formatter, selectedDate)));
-      ref.invalidate(chartDataProvider);
+      ref.read(measurementsRevisionProvider.notifier).state++;
     }
   }
 
