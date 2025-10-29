@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 
 import '../../models/measurement_entry.dart';
 import '../../providers/database_providers.dart';
@@ -35,7 +34,15 @@ class SettingsPage extends ConsumerWidget {
       rows.add(row);
     }
     final csv = const ListToCsvConverter().convert(rows);
-    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = await FilePicker.platform.getDirectoryPath();
+    if (directoryPath == null) {
+      _showSnackBar(context, '已取消匯出');
+      return;
+    }
+    final directory = Directory(directoryPath);
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
     final fileName =
         'BMI_Record_${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.csv';
     final filePath = path.join(directory.path, fileName);
@@ -126,6 +133,7 @@ class SettingsPage extends ConsumerWidget {
       final selectedDate = ref.read(selectedDateProvider);
       final formatter = ref.read(dateFormatterProvider);
       ref.invalidate(entryByDateProvider(formatDateKey(formatter, selectedDate)));
+      ref.invalidate(chartDataProvider);
     }
   }
 
@@ -146,7 +154,7 @@ class SettingsPage extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.download),
               title: const Text('匯出 CSV'),
-              subtitle: const Text('會將所有紀錄匯出到應用程式的文件資料夾'),
+              subtitle: const Text('選擇一個外部資料夾來匯出所有紀錄'),
               onTap: () => _exportData(context, ref),
             ),
           ),

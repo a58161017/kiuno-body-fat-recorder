@@ -146,52 +146,62 @@ class _TrendsPageState extends ConsumerState<TrendsPage> {
                           ),
                         )
                         .toList();
+                    final xValues = spots.map((spot) => spot.x).toSet();
                     final dateFormatter = DateFormat('MM/dd');
-                    return LineChart(
-                      LineChartData(
-                        minX: minX,
-                        maxX: maxX,
-                        minY: minY,
-                        maxY: maxY,
-                        gridData: FlGridData(show: true),
-                        borderData: FlBorderData(
-                          show: true,
-                          border: const Border(
-                            left: BorderSide(),
-                            bottom: BorderSide(),
-                            right: BorderSide(color: Colors.transparent),
-                            top: BorderSide(color: Colors.transparent),
-                          ),
-                        ),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: true, reservedSize: 44),
-                          ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, meta) {
-                                final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Text(dateFormatter.format(date)),
-                                );
-                              },
+                    return InteractiveViewer(
+                      boundaryMargin: const EdgeInsets.all(16),
+                      minScale: 0.8,
+                      maxScale: 4,
+                      child: LineChart(
+                        LineChartData(
+                          minX: minX,
+                          maxX: maxX,
+                          minY: minY,
+                          maxY: maxY,
+                          gridData: FlGridData(show: true),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: const Border(
+                              left: BorderSide(),
+                              bottom: BorderSide(),
+                              right: BorderSide(color: Colors.transparent),
+                              top: BorderSide(color: Colors.transparent),
                             ),
                           ),
-                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        ),
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: spots,
-                            isCurved: true,
-                            dotData: const FlDotData(show: true),
-                            belowBarData: BarAreaData(show: false),
-                            color: Theme.of(context).colorScheme.primary,
+                          titlesData: FlTitlesData(
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: true, reservedSize: 44),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: (value, meta) {
+                                  if (!xValues.contains(value)) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final date =
+                                      DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(dateFormatter.format(date)),
+                                  );
+                                },
+                              ),
+                            ),
+                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                           ),
-                        ],
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: spots,
+                              isCurved: true,
+                              dotData: const FlDotData(show: true),
+                              belowBarData: BarAreaData(show: false),
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
